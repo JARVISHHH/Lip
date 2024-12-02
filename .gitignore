@@ -1,0 +1,3 @@
+datasets/GRID/videos/**
+datasets/GRID/alignments/**
+datasets/GRID/downloads
