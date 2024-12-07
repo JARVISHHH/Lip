@@ -5,16 +5,11 @@ import re
 import tensorflow as tf
 from datetime import datetime
 
-import hyperparameters as hp
-from models import LipNet
-from preprocess import GRIDDataset
+import hyperparameters as hp 
+from preprocess.dataset import GRIDDataset
 from tensorboard_utils import \
         CustomModelSaver
-
-from keras.models import Sequential 
-from keras.layers import Conv3D, LSTM, Dense, Dropout, Bidirectional, MaxPool3D, Activation, Reshape, SpatialDropout3D, BatchNormalization, TimeDistributed, Flatten
-from keras.optimizers import Adam
-import preprocess as pp
+from models import build_model
 
 def parse_args():
     """ Perform command-line argument parsing. """
@@ -44,25 +39,24 @@ def parse_args():
 
     return parser.parse_args()
 
-def train(model, datasets, checkpoint_path, logs_path, init_epoch):
+def train(model, train_datasets, val_datasets,checkpoint_path, logs_path, init_epoch):
     """ Training routine. """
 
     # Keras callbacks for training
     callback_list = [
-        tf.keras.callbacks.TensorBoard(
-            log_dir=logs_path,
-            update_freq='batch',
-            profile_batch=0),
-        # ImageLabelingLogger(logs_path, datasets),
-        CustomModelSaver(checkpoint_path, ARGS.task, hp.max_num_weights)
+        # tf.keras.callbacks.TensorBoard(
+        #     log_dir=logs_path,
+        #     update_freq='batch',
+        #     profile_batch=0),
+        # # ImageLabelingLogger(logs_path, datasets),
+        # CustomModelSaver(checkpoint_path, ARGS.task, hp.max_num_weights),
     ]
 
     # Begin training
     model.fit(
-        x=datasets.train_data,
-        validation_data=datasets.test_data,
+        train_datasets,
         epochs=hp.num_epochs,
-        batch_size=hp.batch_size,
+        validation_data=val_datasets,
         callbacks=callback_list,
         initial_epoch=init_epoch,
     )
@@ -95,38 +89,14 @@ def main():
         timestamp = os.path.basename(os.path.dirname(ARGS.load_checkpoint))
 
     if ARGS.task == 'LipNet':
-        datasets = GRIDDataset(hp.data_path)
-        model = LipNet()
-        model(tf.keras.Input(shape=hp.input_shape))
+        train_datasets = GRIDDataset(hp.data_path, 'train').build()
+        val_datasets = GRIDDataset(hp.data_path, 'val').build()
+        model = build_model()
         checkpoint_path = "checkpoints" + os.sep + \
             "LipNet" + os.sep + timestamp + os.sep
         logs_path = "logs" + os.sep + "LipNet" + \
             os.sep + timestamp + os.sep
-        
-        # model = Sequential()
-        # model.add(Conv3D(128, 3, input_shape=(75,46,140,1), padding='same'))
-        # model.add(Activation('relu'))
-        # model.add(MaxPool3D((1,2,2)))
 
-        # model.add(Conv3D(256, 3, padding='same'))
-        # model.add(Activation('relu'))
-        # model.add(MaxPool3D((1,2,2)))
-
-        # model.add(Conv3D(75, 3, padding='same'))
-        # model.add(Activation('relu'))
-        # model.add(MaxPool3D((1,2,2)))
-
-        # model.add(TimeDistributed(Flatten()))
-
-        # model.add(Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)))
-        # model.add(Dropout(.5))
-
-        # model.add(Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)))
-        # model.add(Dropout(.5))
-
-        # model.add(Dense(pp.char_to_num.vocabulary_size()+1, kernel_initializer='he_normal', activation='softmax'))
-
-        # Print summary of model
         model.summary()
 
     # Load checkpoints
@@ -137,14 +107,7 @@ def main():
     if not ARGS.evaluate and not os.path.exists(checkpoint_path):
         os.makedirs(checkpoint_path)
 
-    # Compile model graph
-    model.compile(
-        optimizer=model.optimizer,
-        loss=model.loss_fn,
-        metrics=["accuracy"],
-        run_eagerly=True)
-
-    train(model, datasets, checkpoint_path, logs_path, init_epoch)
+    train(model, train_datasets, val_datasets, checkpoint_path, logs_path, init_epoch)
 
 ARGS = parse_args()
 

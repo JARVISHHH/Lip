@@ -1,3 +1,5 @@
 datasets/GRID/videos/**
 datasets/GRID/alignments/**
 datasets/GRID/downloads
+datasets/GRID/mouth/**
+datasets/*
