@@ -58,13 +58,15 @@ class Video(object):
         HORIZONTAL_PAD = 0.19
         mouth_left = None
         mouth_frames = []
-        for frame in frames:
-            dets = detector(frame, 1)
+
+        middle_frame = frames[int(hp.frames_number / 3)]
+        try:
+            dets = detector(middle_frame, 1)
             shape = None
             for _, d in enumerate(dets):
-                shape = predictor(frame, d)
+                shape = predictor(middle_frame, d)
             if shape is None:  # Detector doesn't detect face, just return as is
-                return frame
+                return middle_frame
             mouth_points = []
             i = -1
             
@@ -81,10 +83,32 @@ class Video(object):
 
                 mouth_top = int(np.min(np_mouth_points[:, 1]) * (1.0 - HORIZONTAL_PAD))
                 mouth_bottom = int(np.max(np_mouth_points[:, 1]) * (1.0 + HORIZONTAL_PAD))
+        except:
+            return middle_frame
 
-            mouth_crop_image = cv2.resize(frame[mouth_top:mouth_bottom, mouth_left:mouth_right], np.array([MOUTH_WIDTH, MOUTH_HEIGHT]))
+        for frame in frames:
+            try:
+                dets = detector(frame, 1)
+                shape = None
+                for _, d in enumerate(dets):
+                    shape = predictor(frame, d)
+                if shape is None:  # Detector doesn't detect face, just return as is
+                    return frame
+                mouth_points = []
+                i = -1
+                
+                for part in shape.parts():
+                    i += 1
+                    if i < 48 or i > 68:  # Only take mouth region
+                        continue
+                    mouth_points.append((part.x, part.y))
+                np_mouth_points = np.array(mouth_points)
 
-            mouth_frames.append(mouth_crop_image)
+                mouth_crop_image = cv2.resize(frame[mouth_top:mouth_bottom, mouth_left:mouth_right], np.array([MOUTH_WIDTH, MOUTH_HEIGHT]))
+
+                mouth_frames.append(mouth_crop_image)
+            except:
+                return frame
 
         return mouth_frames
 
