@@ -1,7 +1,7 @@
 import tensorflow as tf
 import keras
 from keras.layers import \
-       Conv3D, MaxPool3D, TimeDistributed, Dropout, Flatten, Dense, LSTM, Bidirectional, Activation, ZeroPadding3D, MaxPooling3D, GRU
+       Conv3D, TimeDistributed, Dropout, Flatten, Dense, Bidirectional, Activation, ZeroPadding3D, MaxPooling3D, GRU
 
 import hyperparameters as hp
 

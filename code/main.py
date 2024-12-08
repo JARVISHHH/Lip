@@ -24,6 +24,16 @@ def parse_args():
         help='''Which task of the assignment to run -
         LipNet.''')
     parser.add_argument(
+        '--load-cache',
+        default=False,
+        action=argparse.BooleanOptionalAction,
+        help='''Load the dataset cache.''')
+    parser.add_argument(
+        '--load-testcache',
+        default=False,
+        action=argparse.BooleanOptionalAction,
+        help='''Load the test dataset cache.''')
+    parser.add_argument(
         '--load-checkpoint',
         default=None,
         help='''Path to model checkpoint file (should end with the
@@ -89,8 +99,8 @@ def main():
         timestamp = os.path.basename(os.path.dirname(ARGS.load_checkpoint))
 
     if ARGS.task == 'LipNet':
-        train_datasets = GRIDDataset(hp.data_path, 'train').build()
-        val_datasets = GRIDDataset(hp.data_path, 'val').build()
+        train_datasets = GRIDDataset(hp.data_path, 'train', ARGS.load_cache, ARGS.load_testcache).build()
+        val_datasets = GRIDDataset(hp.data_path, 'val', ARGS.load_cache, ARGS.load_testcache).build()
         model = build_model()
         checkpoint_path = "checkpoints" + os.sep + \
             "LipNet" + os.sep + timestamp + os.sep

@@ -12,13 +12,16 @@ from preprocess.helpers import text_to_labels, get_list_safe
 
 class GRIDDataset(tf.keras.utils.Sequence):
 
-    def __init__(self, data_path, folder_name):
+    def __init__(self, data_path, folder_name, load_cache, load_testcache):
         self.video_input_shape = hp.input_shape
         
         self.data_path = data_path
         self.video_path = os.path.join(self.data_path, "mouth", folder_name)
         self.align_path = os.path.join(self.data_path, "alignments")
+        self.load_cache = load_cache
         self.cache_path = os.path.join(self.data_path, folder_name + ".cache")
+        self.load_testcache = load_testcache
+        self.testcache_path = os.path.join(self.data_path, folder_name + ".testcache")
 
         self.task = 'LipNet'
 
@@ -84,25 +87,29 @@ class GRIDDataset(tf.keras.utils.Sequence):
         return align_hash
     
     def build_dataset(self):
-        if (os.path.isfile(self.cache_path)):
+        if self.load_testcache and (os.path.isfile(self.testcache_path)):
+            print("\nLoading dataset list from test cache...")
+            with open (self.testcache_path, 'rb') as fp:
+                self.video_list, self.align_hash = pickle.load(fp)
+        elif self.load_cache and (os.path.isfile(self.cache_path)):
             print("\nLoading dataset list from cache...")
             with open (self.cache_path, 'rb') as fp:
                 self.video_list, self.align_hash = pickle.load(fp)
         else:
             print("\nEnumerating dataset list from disk...")
             # TODO: decide the data root
-            self.video_list = self.enumerate_videos(os.path.join(self.video_path, '*', 'b*'))
+            self.video_list = self.enumerate_videos(os.path.join(self.video_path, '*', '*'))
             self.align_hash = self.enumerate_aligns(self.video_list)
             with open(self.cache_path, 'wb') as fp:
                 pickle.dump((self.video_list, self.align_hash), fp)
 
-        print("Found {} videos.\n".format(len(self.video_list)))
+        print("Found {} videos under {}.\n".format(len(self.video_list), self.video_path))
 
         np.random.shuffle(self.video_list)
 
     def get_batch(self, start_index, size):
         video_list = self.video_list
-
+ 
         X_data_path = video_list[start_index : start_index + size]
         X_data = []
         Y_data = []

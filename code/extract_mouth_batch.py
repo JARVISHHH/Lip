@@ -9,7 +9,7 @@ Usage:
     pattern: *.avi, *.mpg, etc 
 
 Example:
-    python scripts/extract_mouth_batch.py evaluation/samples/GRID/ *.mpg TARGET/ common/predictors/shape_predictor_68_face_landmarks.dat
+    python extract_mouth_batch.py evaluation/samples/GRID/ *.mpg TARGET/
 
     Will make directory TARGET and process everything inside evaluation/samples/GRID/ that match pattern *.mpg.
 '''
