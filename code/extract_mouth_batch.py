@@ -42,6 +42,9 @@ def find_files(directory, pattern):
 for filepath in find_files(SOURCE_PATH, SOURCE_EXTS):
     print("Processing: {}".format(filepath))
     video = Video('face').from_video(filepath)
+
+    if video.mouth.ndim != 4:
+        continue
     
     filepath_wo_ext = os.path.basename(os.path.splitext(filepath)[0])
     target_dir = os.path.join(TARGET_PATH, filepath_wo_ext)

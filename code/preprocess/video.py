@@ -115,9 +115,12 @@ class Video(object):
     def set_data(self, frames):
         data_frames = []
         for frame in frames:
-            frame = frame.swapaxes(0,1)  # swap width and height to form format W x H x C
-            if len(frame.shape) < 3:
-                frame = np.array([frame]).swapaxes(0,2).swapaxes(0,1)  # Add grayscale channel
-            data_frames.append(frame)
+            try:
+                frame = frame.swapaxes(0,1)  # swap width and height to form format W x H x C
+                if len(frame.shape) < 3:
+                    frame = np.array([frame]).swapaxes(0,2).swapaxes(0,1)  # Add grayscale channel
+                data_frames.append(frame)
+            except:
+                pass
         self.data = np.array(data_frames)
         self.length = len(data_frames)
