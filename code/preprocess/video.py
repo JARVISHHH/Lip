@@ -154,6 +154,8 @@ class Video(object):
             _, frame = cap.read()
             frames.append(frame)
         cap.release()
+        if len(frames) == 0:
+            raise RuntimeError(f"Failed to extract frames from video: {path}")
         return frames
     
     def process_frames_face(self, frames):

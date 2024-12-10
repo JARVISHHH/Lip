@@ -50,7 +50,11 @@ for filepath in find_files(SOURCE_PATH, SOURCE_EXTS):
         continue
     
     print("Processing: {}".format(filepath))
-    video = Video('face').from_video(filepath)
+    try:
+        video = Video('face').from_video(filepath)
+    except RuntimeError as e:
+        print(f"Error processing {filepath}: {e}")
+        continue
     if video.mouth.ndim != 4:
         continue
     
