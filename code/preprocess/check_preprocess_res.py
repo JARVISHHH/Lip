@@ -42,9 +42,9 @@ def compare_folders(in_dir_path, out_dir_path):
             
 in_dir_path = "../datasets/videos"
 out_dir_path = "../datasets/word_alignments"
-compare_folders(in_dir_path, out_dir_path)
+# compare_folders(in_dir_path, out_dir_path)
 
-# for i in range(30, 34):  
+# for i in range(25, 28):  
 #     folder_name = f"s{i}"
 #     folder_path = os.path.join(out_dir_path, folder_name)
 #     zip_file_name = f"{folder_name}.zip"  # Output zip file name
