@@ -4,8 +4,8 @@ import tensorflow as tf
 import numpy as np
 import cv2
 import dlib
-from lipnet.lipreading.aligns import Align
 import hyperparameters as hp
+from .align import Align
 
 class VideoAugmenter(object):
     @staticmethod
