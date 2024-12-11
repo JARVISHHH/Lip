@@ -36,6 +36,19 @@ lip/
 
 
 
+## Commands
+
+| command name      | usage                       | default |
+| ----------------- | --------------------------- | ------- |
+| --load-cache      | to load preprocessing cache | False   |
+| --load-testcache  | to load test cache          | False   |
+| --load-checkpoint | to load checkpoint          |         |
+| --load-pretrain   | to load pretrain weights    |         |
+| --train           | to train the model          | False   |
+| --evaluate        | to test the model           | False   |
+
+
+
 ## Download datasets
 
 https://drive.google.com/drive/folders/1nZ1Vg_fBOYAiu_cxt762WLC-A1YKBz5a?usp=drive_link
@@ -86,7 +99,7 @@ Modify `architecture` in `model.py`. The current `architecture` is the same with
 Run
 
 ```bash
-python main.py --load-testcache
+python main.py --load-testcache --train
 ```
 
 to test if the code is runnable.
@@ -100,7 +113,7 @@ to test if the code is runnable.
 Run
 
 ```
-python main.py
+python main.py --train
 ```
 
 It will first load all the data from datasets and then start to train the model.
