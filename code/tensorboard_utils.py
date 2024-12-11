@@ -203,11 +203,10 @@ def plot_to_image(figure):
 class CustomModelSaver(tf.keras.callbacks.Callback):
     """ Custom Keras callback for saving weights of networks. """
 
-    def __init__(self, checkpoint_dir, task, max_num_weights=5):
+    def __init__(self, checkpoint_dir, max_num_weights=5):
         super(CustomModelSaver, self).__init__()
 
         self.checkpoint_dir = checkpoint_dir
-        self.task = task
         self.max_num_weights = max_num_weights
 
     def on_epoch_end(self, epoch, logs=None):
@@ -224,18 +223,11 @@ class CustomModelSaver(tf.keras.callbacks.Callback):
             save_name = "weights.e{0:03d}-acc{1:.4f}.h5".format(
                 epoch, cur_acc)
 
-            if self.task == 'LipNet':
-                save_location = self.checkpoint_dir + os.sep + "LipNet." + save_name
-                print(("\nEpoch {0:03d} TEST accuracy ({1:.4f}) EXCEEDED previous "
-                       "maximum TEST accuracy.\nSaving checkpoint at {location}")
-                       .format(epoch + 1, cur_acc, location = save_location))
-                self.model.save_weights(save_location)
-            else:
-                save_location = self.checkpoint_dir + os.sep + "Wav2Lip." + save_name
-                print(("\nEpoch {0:03d} TEST accuracy ({1:.4f}) EXCEEDED previous "
-                       "maximum TEST accuracy.\nSaving checkpoint at {location}")
-                       .format(epoch + 1, cur_acc, location = save_location))
-                self.model.save_weights(save_location)
+            save_location = self.checkpoint_dir + os.sep + save_name
+            print(("\nEpoch {0:03d} TEST accuracy ({1:.4f}) EXCEEDED previous "
+                    "maximum TEST accuracy.\nSaving checkpoint at {location}")
+                    .format(epoch + 1, cur_acc, location = save_location))
+            self.model.save_weights(save_location)
 
             # Ensure max_num_weights is not exceeded by removing
             # minimum weight
