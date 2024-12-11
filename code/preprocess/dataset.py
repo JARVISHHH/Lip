@@ -16,6 +16,7 @@ class GRIDDataset(tf.keras.utils.Sequence):
         self.video_input_shape = hp.input_shape
         
         self.data_path = data_path
+        self.folder_name = folder_name
         self.video_path = os.path.join(self.data_path, "mouth", folder_name)
         self.align_path = os.path.join(self.data_path, "alignments")
         self.load_cache = load_cache
@@ -83,25 +84,29 @@ class GRIDDataset(tf.keras.utils.Sequence):
             speaker = video_path.split(os.sep)[-2]
             video_id = video_path.split(os.sep)[-1]
             align_path = os.path.join(self.align_path, speaker, video_id) + ".align"
-            align_hash[os.path.join(speaker, video_id)] = Align(text_to_labels).from_file(align_path)
+            align_hash[os.path.join(speaker, video_id)] = Align(hp.char_to_num).from_file(align_path)
         return align_hash
     
     def build_dataset(self):
         if self.load_testcache and (os.path.isfile(self.testcache_path)):
             print("\nLoading dataset list from test cache...")
             with open (self.testcache_path, 'rb') as fp:
-                self.video_list, self.align_hash = pickle.load(fp)
+                self.video_list = pickle.load(fp)
+                self.align_hash = self.enumerate_aligns(self.video_list)
         elif self.load_cache and (os.path.isfile(self.cache_path)):
             print("\nLoading dataset list from cache...")
             with open (self.cache_path, 'rb') as fp:
-                self.video_list, self.align_hash = pickle.load(fp)
+                self.video_list = pickle.load(fp)
+                self.align_hash = self.enumerate_aligns(self.video_list)
         else:
             print("\nEnumerating dataset list from disk...")
-            # TODO: decide the data root
-            self.video_list = self.enumerate_videos(os.path.join(self.video_path, '*', '*'))
+            if self.folder_name == "train":
+                self.video_list = self.enumerate_videos(os.path.join(self.video_path, 's3', '*'))
+            else:
+                self.video_list = self.enumerate_videos(os.path.join(self.video_path, 's1', '*'))
             self.align_hash = self.enumerate_aligns(self.video_list)
             with open(self.cache_path, 'wb') as fp:
-                pickle.dump((self.video_list, self.align_hash), fp)
+                pickle.dump((self.video_list), fp)
 
         print("Found {} videos under {}.\n".format(len(self.video_list), self.video_path))
 

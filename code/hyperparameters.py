@@ -1,4 +1,5 @@
 import os
+import tensorflow as tf
 
 num_epochs = 10
 
@@ -13,7 +14,14 @@ image_width = 100
 image_height = 50
 image_channel = 3
 input_shape = (frames_number, image_width, image_height, image_channel)
-output_size = 28  # 28 letters + space + CTC space
+
+vocab = [x for x in "abcdefghijklmnopqrstuvwxyz "]
+char_to_num = tf.keras.layers.StringLookup(vocabulary=vocab, oov_token="")
+num_to_char = tf.keras.layers.StringLookup(vocabulary=char_to_num.get_vocabulary(), oov_token="", invert=True)
+
+output_size = char_to_num.vocabulary_size() + 1
+
+# output_size = 28  # 28 letters + space + CTC space
 
 data_path = os.path.normpath('../datasets')
 

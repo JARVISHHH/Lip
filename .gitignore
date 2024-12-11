@@ -2,3 +2,4 @@ datasets/alignments/*
 datasets/downloads/*
 datasets/mouth/*
 datasets/videos/*
+datasets/tests/*

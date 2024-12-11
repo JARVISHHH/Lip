@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow as tf
 
 import hyperparameters as hp
 
@@ -26,15 +27,22 @@ class Align(object):
     def get_label(self, sentence):
         return self.label_func(sentence)
     
-    def get_padded_label(self, label):
-        padding = np.zeros((hp.absolute_max_string_len - len(label)))
-        return np.concatenate((np.array(label), padding), axis=0)
+    # def get_padded_label(self, label):
+    #     padding = np.zeros((hp.absolute_max_string_len - len(label)))
+    #     return np.concatenate((np.array(label), padding), axis=0)
     
     def build(self, align):
         self.align = self.strip(align, ['sp', 'sil'])
         self.sentence = self.get_sentence(align)
-        self.label = self.get_label(self.sentence)
-        self.padded_label = self.get_padded_label(self.label)
+        self.tokens = []
+        for c in self.align:
+            self.tokens = [*self.tokens, ' ', c[-1]]
+        self.tokens = self.tokens[1:]
+        self.label = self.get_label(tf.reshape(tf.strings.unicode_split(self.tokens, input_encoding='UTF-8'), (-1)))
+        self.padded_label = tf.pad(
+            self.label,
+            [[0, hp.absolute_max_string_len - tf.shape(self.label)[0]]]
+        )
 
     def from_file(self, path):
         with open(path, 'r') as f:
