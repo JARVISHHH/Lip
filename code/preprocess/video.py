@@ -135,7 +135,7 @@ class Video(object):
     
     def from_frames(self, path):
         frames_path = sorted([os.path.join(path, x) for x in os.listdir(path)])
-        frames = [cv2.imread(frame_path) for frame_path in frames_path]
+        frames = [cv2.resize(cv2.imread(frame_path), np.array([hp.image_width, hp.image_height])) for frame_path in frames_path]
         self.handle_type(frames)
         return self
     
@@ -164,7 +164,7 @@ class Video(object):
         predictor = dlib.shape_predictor(hp.face_predictor_path)
         mouth_frames = self.get_frames_mouth(detector, predictor, frames)
         self.mouth = np.array(mouth_frames)
-        self.set_data(frames)
+        self.set_data(mouth_frames)
 
     def process_frames_mouth(self, frames):
         self.face = np.array(frames)
@@ -178,7 +178,7 @@ class Video(object):
         mouth_left = None
         mouth_frames = []
 
-        middle_frame = frames[int(hp.frames_number / 3)]
+        middle_frame = frames[int(len(frames) / 3)]
         try:
             dets = detector(middle_frame, 1)
             shape = None

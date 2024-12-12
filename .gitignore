@@ -2,6 +2,8 @@ datasets/alignments/*
 datasets/downloads/*
 datasets/mouth/*
 datasets/videos/*
+datasets/tests/*
 __pycache__/*
 *.pyc
 .DS_Store
+
