@@ -25,7 +25,7 @@ image_channel = 3
 input_shape = (frames_number, image_width, image_height, image_channel)
 
 vocab = [x for x in "abcdefghijklmnopqrstuvwxyz "]
-char_to_num = tf.keras.layers.StringLookup(vocabulary=vocab, oov_token="")
-num_to_char = tf.keras.layers.StringLookup(vocabulary=char_to_num.get_vocabulary(), oov_token="", invert=True)
+char_to_num = tf.keras.layers.StringLookup(vocabulary=vocab, oov_token="", num_oov_indices=0)
+num_to_char = tf.keras.layers.StringLookup(vocabulary=char_to_num.get_vocabulary(), oov_token="", invert=True, num_oov_indices=0)
 
 output_size = char_to_num.vocabulary_size() + 1
