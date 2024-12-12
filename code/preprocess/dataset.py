@@ -8,7 +8,7 @@ import multiprocessing
 
 from preprocess.video import Video
 from preprocess.align import Align
-from preprocess.helpers import text_to_labels, get_list_safe
+from preprocess.helpers import get_list_safe
 
 class GRIDDataset(tf.keras.utils.Sequence):
 
