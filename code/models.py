@@ -3,6 +3,7 @@ import keras
 from keras.layers import \
        Conv3D, TimeDistributed, Dropout, Flatten, Dense, Bidirectional, Activation, ZeroPadding3D, MaxPooling3D, GRU, BatchNormalization, SpatialDropout3D, MaxPool3D, LSTM
 from keras.callbacks import ModelCheckpoint, TensorBoard
+from keras.regularizers import l2
 import hyperparameters as hp
 
 def CTCLoss(y_true, y_pred):
@@ -101,9 +102,7 @@ def build_model():
 
             # Dense(hp.output_size, kernel_initializer='he_normal', activation='softmax')
 
-            '''
-            hybrid model: for the computation interest
-            '''
+
             
             Conv3D(32, (3, 5, 5), strides=(1, 2, 2), padding='same', 
             kernel_initializer='he_normal', kernel_regularizer=l2(0.001)),
@@ -134,9 +133,9 @@ def build_model():
 
             # Fully connected layers
 
-            Dense(num_classes, kernel_initializer='he_normal', activation='softmax')
+            Dense(hp.output_size, kernel_initializer='he_normal', activation='softmax')
 
-        ]
+    ]
 
     output = input
     for layer in architecture:
@@ -149,7 +148,7 @@ def build_model():
     optimizer = tf.keras.optimizers.Adam(learning_rate=hp.learning_rate)
     model.compile(optimizer=optimizer, 
                   loss=CTCLoss,
-                #   metrics=["accuracy"]
+                metrics=["sparse_categorical_accuracy"]
                   )
 
     return model

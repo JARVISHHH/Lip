@@ -61,6 +61,15 @@ def train(model, train_datasets, val_datasets,checkpoint_path, logs_path, init_e
 
     # Keras callbacks for training
     callback_list = [
+
+        tf.keras.callbacks.TensorBoard(
+            log_dir=logs_path,
+            update_freq='batch',  # Save histograms of weights for each epoch
+            write_graph=True,  # Save the computation graph
+            write_images=True  # Save images of weights
+        ),
+
+        CustomModelSaver(checkpoint_path, hp.max_num_weights)
         # tf.keras.callbacks.TensorBoard(
         #     log_dir=logs_path,
         #     update_freq='batch',
