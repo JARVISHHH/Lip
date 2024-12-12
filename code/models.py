@@ -2,7 +2,7 @@ import tensorflow as tf
 import keras
 from keras.layers import \
        Conv3D, TimeDistributed, Dropout, Flatten, Dense, Bidirectional, Activation, ZeroPadding3D, MaxPooling3D, GRU, BatchNormalization, SpatialDropout3D, MaxPool3D, LSTM
-
+from keras.callbacks import ModelCheckpoint, TensorBoard
 import hyperparameters as hp
 
 def CTCLoss(y_true, y_pred):
@@ -114,3 +114,15 @@ def build_model():
                   )
 
     return model
+
+def get_callbacks():
+    checkpoint_path = "checkpoints/lipnet_model_{epoch:02d}_{val_loss:.2f}.h5"
+    checkpoint = ModelCheckpoint(filepath=checkpoint_path, 
+                                 monitor='val_loss', 
+                                 save_best_only=True, 
+                                 save_weights_only=False, 
+                                 verbose=1)
+
+    tensorboard = TensorBoard(log_dir='logs', histogram_freq=1, write_graph=True, update_freq='epoch')
+
+    return [checkpoint, tensorboard]
