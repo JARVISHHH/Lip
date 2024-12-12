@@ -27,60 +27,63 @@ def build_model():
 
     architecture = [
             ##### GitHub model 1 #####
-            # ZeroPadding3D(padding=(1, 2, 2), name='zero1'),
-            # Conv3D(32, (3, 5, 5), strides=(1, 2, 2), activation='relu', kernel_initializer='he_normal', name='conv1'),
-            # MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max1'),
-            # Dropout(0.5),
-
-            # ZeroPadding3D(padding=(1, 2, 2), name='zero2'),
-            # Conv3D(64, (3, 5, 5), strides=(1, 1, 1), activation='relu', kernel_initializer='he_normal', name='conv2'),
-            # MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max2'),
-            # Dropout(0.5),
-
-            # ZeroPadding3D(padding=(1, 1, 1), name='zero3'),
-            # Conv3D(96, (3, 3, 3), strides=(1, 1, 1), activation='relu', kernel_initializer='he_normal', name='conv3'),
-            # MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max3'),
-            # Dropout(0.5),
-
-            # TimeDistributed(Flatten()),
-
-            # Bidirectional(GRU(256, return_sequences=True, kernel_initializer='Orthogonal', name='gru1'), merge_mode='concat'),
-            # Bidirectional(GRU(256, return_sequences=True, kernel_initializer='Orthogonal', name='gru2'), merge_mode='concat'),
-
-            # Dense(hp.output_size, kernel_initializer='he_normal', name='dense1'),
-            # Activation('softmax', name='softmax')
-
-            ##### GitHub model 2 #####
+            ## aorund 4 million parameters
             ZeroPadding3D(padding=(1, 2, 2), name='zero1'),
-            Conv3D(32, (3, 5, 5), strides=(1, 2, 2), kernel_initializer='he_normal', name='conv1'),
-            BatchNormalization(name='batc1'),
-            Activation('relu', name='actv1'),
-            SpatialDropout3D(0.5),
+            Conv3D(32, (3, 5, 5), strides=(1, 2, 2), activation='relu', kernel_initializer='he_normal', name='conv1'),
             MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max1'),
+            Dropout(0.5),
 
             ZeroPadding3D(padding=(1, 2, 2), name='zero2'),
-            Conv3D(64, (3, 5, 5), strides=(1, 1, 1), kernel_initializer='he_normal', name='conv2'),
-            BatchNormalization(name='batc2'),
-            Activation('relu', name='actv2'),
-            SpatialDropout3D(0.5),
+            Conv3D(64, (3, 5, 5), strides=(1, 1, 1), activation='relu', kernel_initializer='he_normal', name='conv2'),
             MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max2'),
+            Dropout(0.5),
 
             ZeroPadding3D(padding=(1, 1, 1), name='zero3'),
-            Conv3D(96, (3, 3, 3), strides=(1, 1, 1), kernel_initializer='he_normal', name='conv3'),
-            BatchNormalization(name='batc3'),
-            Activation('relu', name='actv3'),
-            SpatialDropout3D(0.5),
+            Conv3D(96, (3, 3, 3), strides=(1, 1, 1), activation='relu', kernel_initializer='he_normal', name='conv3'),
             MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max3'),
+            Dropout(0.5),
 
             TimeDistributed(Flatten()),
 
-            Bidirectional(GRU(256, return_sequences=True, reset_after=False, kernel_initializer='Orthogonal', name='gru1'), merge_mode='concat'),
-            Bidirectional(GRU(256, return_sequences=True, reset_after=False, kernel_initializer='Orthogonal', name='gru2'), merge_mode='concat'),
+            Bidirectional(GRU(256, return_sequences=True, kernel_initializer='Orthogonal', name='gru1'), merge_mode='concat'),
+            Bidirectional(GRU(256, return_sequences=True, kernel_initializer='Orthogonal', name='gru2'), merge_mode='concat'),
 
             Dense(hp.output_size, kernel_initializer='he_normal', name='dense1'),
             Activation('softmax', name='softmax')
 
+            ##### GitHub model 2 #####
+            ## aorund 4 million parameters
+            # ZeroPadding3D(padding=(1, 2, 2), name='zero1'),
+            # Conv3D(32, (3, 5, 5), strides=(1, 2, 2), kernel_initializer='he_normal', name='conv1'),
+            # BatchNormalization(name='batc1'),
+            # Activation('relu', name='actv1'),
+            # SpatialDropout3D(0.5),
+            # MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max1'),
+
+            # ZeroPadding3D(padding=(1, 2, 2), name='zero2'),
+            # Conv3D(64, (3, 5, 5), strides=(1, 1, 1), kernel_initializer='he_normal', name='conv2'),
+            # BatchNormalization(name='batc2'),
+            # Activation('relu', name='actv2'),
+            # SpatialDropout3D(0.5),
+            # MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max2'),
+
+            # ZeroPadding3D(padding=(1, 1, 1), name='zero3'),
+            # Conv3D(96, (3, 3, 3), strides=(1, 1, 1), kernel_initializer='he_normal', name='conv3'),
+            # BatchNormalization(name='batc3'),
+            # Activation('relu', name='actv3'),
+            # SpatialDropout3D(0.5),
+            # MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max3'),
+
+            # TimeDistributed(Flatten()),
+
+            # Bidirectional(GRU(256, return_sequences=True, reset_after=False, kernel_initializer='Orthogonal', name='gru1'), merge_mode='concat'),
+            # Bidirectional(GRU(256, return_sequences=True, reset_after=False, kernel_initializer='Orthogonal', name='gru2'), merge_mode='concat'),
+
+            # Dense(hp.output_size, kernel_initializer='he_normal', name='dense1'),
+            # Activation('softmax', name='softmax')
+
             ##### Youtube model #####
+            ## aorund 7 million parameters
             # Conv3D(128, 3, padding='same'),
             # Activation('relu'),
             # MaxPool3D((1,2,2)),
@@ -101,6 +104,7 @@ def build_model():
             # Dense(hp.output_size, kernel_initializer='he_normal', name='dense1')
 
             ##### Youtube model #####
+            ## aorund 4 million parameters
             # Conv3D(128, 3, padding='same'),
             # Activation('relu'),
             # MaxPool3D((1,2,2)),
@@ -125,36 +129,36 @@ def build_model():
 
 
             
-            Conv3D(32, (3, 5, 5), strides=(1, 2, 2), padding='same', 
-            kernel_initializer='he_normal', kernel_regularizer=l2(0.001)),
-            BatchNormalization(),
-            Activation('relu'),
-            SpatialDropout3D(0.5),
-            MaxPooling3D(pool_size=(2, 2, 2)),
+            # Conv3D(32, (3, 5, 5), strides=(1, 2, 2), padding='same', 
+            # kernel_initializer='he_normal', kernel_regularizer=l2(0.001)),
+            # BatchNormalization(),
+            # Activation('relu'),
+            # SpatialDropout3D(0.5),
+            # MaxPooling3D(pool_size=(2, 2, 2)),
             
-            Conv3D(64, (3, 3, 3), padding='same', kernel_initializer='he_normal'),
-            BatchNormalization(),
-            Activation('relu'),
-            SpatialDropout3D(0.5),
-            MaxPooling3D(pool_size=(2, 2, 2)),
+            # Conv3D(64, (3, 3, 3), padding='same', kernel_initializer='he_normal'),
+            # BatchNormalization(),
+            # Activation('relu'),
+            # SpatialDropout3D(0.5),
+            # MaxPooling3D(pool_size=(2, 2, 2)),
 
-            Conv3D(128, (3, 3, 3), padding='same', kernel_initializer='he_normal'),
-            BatchNormalization(),
-            Activation('relu'),
-            SpatialDropout3D(0.5),
-            MaxPooling3D(pool_size=(2, 2, 2)),
+            # Conv3D(128, (3, 3, 3), padding='same', kernel_initializer='he_normal'),
+            # BatchNormalization(),
+            # Activation('relu'),
+            # SpatialDropout3D(0.5),
+            # MaxPooling3D(pool_size=(2, 2, 2)),
 
-            # Flatten
-            TimeDistributed(Flatten()),
+            # # Flatten
+            # TimeDistributed(Flatten()),
 
-            Bidirectional(GRU(128, return_sequences=True, kernel_initializer='Orthogonal')),
-            Dropout(0.5),
-            Bidirectional(GRU(64, return_sequences=False, kernel_initializer='Orthogonal')),
-            Dropout(0.5),
+            # Bidirectional(GRU(128, return_sequences=True, kernel_initializer='Orthogonal')),
+            # Dropout(0.5),
+            # Bidirectional(GRU(64, return_sequences=False, kernel_initializer='Orthogonal')),
+            # Dropout(0.5),
 
-            # Fully connected layers
+            # # Fully connected layers
 
-            Dense(hp.output_size, kernel_initializer='he_normal', activation='softmax')
+            # Dense(hp.output_size, kernel_initializer='he_normal', activation='softmax')
 
     ]
 
@@ -168,14 +172,16 @@ def build_model():
     model = keras.Model(input, output, name='LipNet')
     optimizer = tf.keras.optimizers.Adam(learning_rate=hp.learning_rate)
     model.compile(optimizer=optimizer, 
-                  loss=CTCLoss,
-                metrics=["sparse_categorical_accuracy"]
+                  loss=CTCLoss
                   )
 
     return model
 
 
 
+# def sparse_categorical_accuracy_fn(y_true, y_pred):
+#     y_pred = tf.argmax(y_pred, axis=-1)  # Reduce the last dimension
+#     return tf.keras.metrics.sparse_categorical_accuracy(y_true, y_pred)
 
 
 def get_callbacks():

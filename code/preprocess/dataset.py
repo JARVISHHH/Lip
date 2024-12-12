@@ -78,11 +78,28 @@ class GRIDDataset(tf.keras.utils.Sequence):
         return video_list
     
     def enumerate_aligns(self, video_list):
+        #used for macOS
         align_hash = {}
         for video_path in video_list:
-            speaker = video_path.split(os.sep)[-2]
-            video_id = video_path.split(os.sep)[-1]
-            align_path = os.path.join(self.align_path, speaker, video_id) + ".align"
+            normalized_path = os.path.normpath(video_path).replace("\\", "/")
+            # print(f"nor path: {normalized_path}")
+            # print(f"os.sep: {os.sep}")
+            absolute_path = os.path.abspath(normalized_path)    
+            # print(f"Checking path: {absolute_path}")
+            components = normalized_path.split("/")
+            # print(f"Normalized path: {normalized_path}")
+            # print(f"Components: {components}")
+            if len(components) < 2:
+                raise ValueError(f"Invalid video path structure: {video_path}")
+            speaker = components[-2]
+            video_id = components[-1]
+            align_path = os.path.join(self.align_path, speaker, f"{video_id}.align")
+            # print(f"Align path1: {align_path}")  
+            align_path = os.path.normpath(align_path)  # Normalize the align path
+            # print(f"Align path2: {align_path}")          
+            if not os.path.exists(align_path):
+                raise FileNotFoundError(f"Align file not found: {align_path}")
+  
             align_hash[os.path.join(speaker, video_id)] = Align(hp.char_to_num).from_file(align_path)
         return align_hash
     
@@ -118,6 +135,7 @@ class GRIDDataset(tf.keras.utils.Sequence):
         X_data = []
         Y_data = []
         for path in X_data_path:
+            path = path.replace("\\","/")
             video = Video('mouth').from_frames(path)
             align = self.get_align(os.path.join(path.split(os.sep)[-2], path.split(os.sep)[-1]))
             video_unpadded_length = video.length
