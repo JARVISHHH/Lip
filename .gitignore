@@ -6,4 +6,5 @@ datasets/tests/*
 __pycache__/*
 *.pyc
 .DS_Store
+datasets/*.cache
 
