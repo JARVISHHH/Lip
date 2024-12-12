@@ -79,33 +79,72 @@ def build_model():
             # Dense(hp.output_size, kernel_initializer='he_normal', name='dense1')
 
             ##### Youtube model #####
-            Conv3D(128, 3, padding='same'),
-            Activation('relu'),
-            MaxPool3D((1,2,2)),
+            # Conv3D(128, 3, padding='same'),
+            # Activation('relu'),
+            # MaxPool3D((1,2,2)),
 
-            Conv3D(256, 3, padding='same'),
-            Activation('relu'),
-            MaxPool3D((1,2,2)),
+            # Conv3D(256, 3, padding='same'),
+            # Activation('relu'),
+            # MaxPool3D((1,2,2)),
 
-            Conv3D(75, 3, padding='same'),
-            Activation('relu'),
-            MaxPool3D((1,2,2)),
+            # Conv3D(75, 3, padding='same'),
+            # Activation('relu'),
+            # MaxPool3D((1,2,2)),
 
+            # TimeDistributed(Flatten()),
+
+            # Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)),
+            # Dropout(.5),
+
+            # Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)),
+            # Dropout(.5),
+
+            # Dense(hp.output_size, kernel_initializer='he_normal', activation='softmax')
+
+            '''
+            hybrid model: for the computation interest
+            '''
+            
+            Conv3D(32, (3, 5, 5), strides=(1, 2, 2), padding='same', 
+            kernel_initializer='he_normal', kernel_regularizer=l2(0.001)),
+            BatchNormalization(),
+            Activation('relu'),
+            SpatialDropout3D(0.5),
+            MaxPooling3D(pool_size=(2, 2, 2)),
+            
+            Conv3D(64, (3, 3, 3), padding='same', kernel_initializer='he_normal'),
+            BatchNormalization(),
+            Activation('relu'),
+            SpatialDropout3D(0.5),
+            MaxPooling3D(pool_size=(2, 2, 2)),
+
+            Conv3D(128, (3, 3, 3), padding='same', kernel_initializer='he_normal'),
+            BatchNormalization(),
+            Activation('relu'),
+            SpatialDropout3D(0.5),
+            MaxPooling3D(pool_size=(2, 2, 2)),
+
+            # Flatten
             TimeDistributed(Flatten()),
 
-            Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)),
-            Dropout(.5),
+            Bidirectional(GRU(128, return_sequences=True, kernel_initializer='Orthogonal')),
+            Dropout(0.5),
+            Bidirectional(GRU(64, return_sequences=False, kernel_initializer='Orthogonal')),
+            Dropout(0.5),
 
-            Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)),
-            Dropout(.5),
+            # Fully connected layers
 
-            Dense(hp.output_size, kernel_initializer='he_normal', activation='softmax')
+            Dense(num_classes, kernel_initializer='he_normal', activation='softmax')
+
         ]
 
     output = input
     for layer in architecture:
         output = layer(output)
     
+    
+
+
     model = keras.Model(input, output, name='LipNet')
     optimizer = tf.keras.optimizers.Adam(learning_rate=hp.learning_rate)
     model.compile(optimizer=optimizer, 
@@ -114,6 +153,10 @@ def build_model():
                   )
 
     return model
+
+
+
+
 
 def get_callbacks():
     checkpoint_path = "checkpoints/lipnet_model_{epoch:02d}_{val_loss:.2f}.h5"
