@@ -140,7 +140,7 @@ def main():
         train(model, train_datasets, val_datasets, checkpoint_path, logs_path, init_epoch)
     # Test
     if ARGS.evaluate:
-        test_path = os.path.join(hp.data_path, "test", "*")
+        test_path = os.path.join(hp.data_path, "tests", "*")
         for video_path in glob.glob(test_path):
             print("Predicting test data " + video_path + "...")
             try:
@@ -161,7 +161,7 @@ def main():
             y_pred       = model.predict(X_data)
             decoded      = tf.keras.backend.ctc_decode(y_pred, input_length, greedy=False)[0][0].numpy()
 
-            text = hp.num_to_char(decoded[0])
+            text = tf.strings.reduce_join([bytes.decode(x) for x in hp.num_to_char(decoded[0]).numpy()])
             print(text)
 
             # show_video_subtitle(video.face, decoded)
