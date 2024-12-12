@@ -50,56 +50,57 @@ def build_model():
             # Activation('softmax', name='softmax')
 
             ##### GitHub model 2 #####
-            # ZeroPadding3D(padding=(1, 2, 2), name='zero1'),
-            # Conv3D(32, (3, 5, 5), strides=(1, 2, 2), kernel_initializer='he_normal', name='conv1'),
-            # BatchNormalization(name='batc1'),
-            # Activation('relu', name='actv1'),
-            # SpatialDropout3D(0.5),
-            # MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max1'),
+            ZeroPadding3D(padding=(1, 2, 2), name='zero1'),
+            Conv3D(32, (3, 5, 5), strides=(1, 2, 2), kernel_initializer='he_normal', name='conv1'),
+            BatchNormalization(name='batc1'),
+            Activation('relu', name='actv1'),
+            SpatialDropout3D(0.5),
+            MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max1'),
 
-            # ZeroPadding3D(padding=(1, 2, 2), name='zero2'),
-            # Conv3D(64, (3, 5, 5), strides=(1, 1, 1), kernel_initializer='he_normal', name='conv2'),
-            # BatchNormalization(name='batc2'),
-            # Activation('relu', name='actv2'),
-            # SpatialDropout3D(0.5),
-            # MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max2'),
+            ZeroPadding3D(padding=(1, 2, 2), name='zero2'),
+            Conv3D(64, (3, 5, 5), strides=(1, 1, 1), kernel_initializer='he_normal', name='conv2'),
+            BatchNormalization(name='batc2'),
+            Activation('relu', name='actv2'),
+            SpatialDropout3D(0.5),
+            MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max2'),
 
-            # ZeroPadding3D(padding=(1, 1, 1), name='zero3'),
-            # Conv3D(96, (3, 3, 3), strides=(1, 1, 1), kernel_initializer='he_normal', name='conv3'),
-            # BatchNormalization(name='batc3'),
-            # Activation('relu', name='actv3'),
-            # SpatialDropout3D(0.5),
-            # MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max3'),
-
-            # TimeDistributed(Flatten()),
-
-            # Bidirectional(GRU(256, return_sequences=True, reset_after=False, kernel_initializer='Orthogonal', name='gru1'), merge_mode='concat'),
-            # Bidirectional(GRU(256, return_sequences=True, reset_after=False, kernel_initializer='Orthogonal', name='gru2'), merge_mode='concat'),
-
-            # Dense(hp.output_size, kernel_initializer='he_normal', name='dense1')
-
-            ##### Youtube model #####
-            Conv3D(128, 3, padding='same'),
-            Activation('relu'),
-            MaxPool3D((1,2,2)),
-
-            Conv3D(256, 3, padding='same'),
-            Activation('relu'),
-            MaxPool3D((1,2,2)),
-
-            Conv3D(75, 3, padding='same'),
-            Activation('relu'),
-            MaxPool3D((1,2,2)),
+            ZeroPadding3D(padding=(1, 1, 1), name='zero3'),
+            Conv3D(96, (3, 3, 3), strides=(1, 1, 1), kernel_initializer='he_normal', name='conv3'),
+            BatchNormalization(name='batc3'),
+            Activation('relu', name='actv3'),
+            SpatialDropout3D(0.5),
+            MaxPooling3D(pool_size=(1, 2, 2), strides=(1, 2, 2), name='max3'),
 
             TimeDistributed(Flatten()),
 
-            Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)),
-            Dropout(.5),
+            Bidirectional(GRU(256, return_sequences=True, reset_after=False, kernel_initializer='Orthogonal', name='gru1'), merge_mode='concat'),
+            Bidirectional(GRU(256, return_sequences=True, reset_after=False, kernel_initializer='Orthogonal', name='gru2'), merge_mode='concat'),
 
-            Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)),
-            Dropout(.5),
+            Dense(hp.output_size, kernel_initializer='he_normal', name='dense1'),
+            Activation('softmax', name='softmax')
 
-            Dense(hp.output_size, kernel_initializer='he_normal', activation='softmax')
+            ##### Youtube model #####
+            # Conv3D(128, 3, padding='same'),
+            # Activation('relu'),
+            # MaxPool3D((1,2,2)),
+
+            # Conv3D(256, 3, padding='same'),
+            # Activation('relu'),
+            # MaxPool3D((1,2,2)),
+
+            # Conv3D(75, 3, padding='same'),
+            # Activation('relu'),
+            # MaxPool3D((1,2,2)),
+
+            # TimeDistributed(Flatten()),
+
+            # Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)),
+            # Dropout(.5),
+
+            # Bidirectional(LSTM(128, kernel_initializer='Orthogonal', return_sequences=True)),
+            # Dropout(.5),
+
+            # Dense(hp.output_size, kernel_initializer='he_normal', activation='softmax')
         ]
 
     output = input
