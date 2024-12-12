@@ -8,7 +8,6 @@ import multiprocessing
 
 from preprocess.video import Video
 from preprocess.align import Align
-from preprocess.helpers import get_list_safe
 
 class GRIDDataset(tf.keras.utils.Sequence):
 
@@ -101,9 +100,9 @@ class GRIDDataset(tf.keras.utils.Sequence):
         else:
             print("\nEnumerating dataset list from disk...")
             if self.folder_name == "train":
-                self.video_list = self.enumerate_videos(os.path.join(self.video_path, 's3', '*'))
+                self.video_list = self.enumerate_videos(os.path.join(self.video_path, '*', '*'))
             else:
-                self.video_list = self.enumerate_videos(os.path.join(self.video_path, 's1', '*'))
+                self.video_list = self.enumerate_videos(os.path.join(self.video_path, '*', '*'))
             self.align_hash = self.enumerate_aligns(self.video_list)
             with open(self.cache_path, 'wb') as fp:
                 pickle.dump((self.video_list), fp)

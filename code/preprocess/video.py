@@ -135,7 +135,7 @@ class Video(object):
     
     def from_frames(self, path):
         frames_path = sorted([os.path.join(path, x) for x in os.listdir(path)])
-        frames = [cv2.resize(cv2.imread(frame_path), np.array([hp.image_width, hp.image_height])) for frame_path in frames_path]
+        frames = [cv2.imread(frame_path) for frame_path in frames_path]
         self.handle_type(frames)
         return self
     
