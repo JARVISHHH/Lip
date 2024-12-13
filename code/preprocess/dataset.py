@@ -91,11 +91,14 @@ class GRIDDataset(tf.keras.utils.Sequence):
             print("\nLoading dataset list from test cache...")
             with open (self.testcache_path, 'rb') as fp:
                 self.video_list = pickle.load(fp)
+                self.video_list = [x.replace("\\", os.sep).replace("/", os.sep) for x in self.video_list]
+                print(self.video_path)
                 self.align_hash = self.enumerate_aligns(self.video_list)
         elif self.load_cache and (os.path.isfile(self.cache_path)):
             print("\nLoading dataset list from cache...")
             with open (self.cache_path, 'rb') as fp:
                 self.video_list = pickle.load(fp)
+                self.video_list = [x.replace("\\", os.sep).replace("/", os.sep) for x in self.video_list]
                 self.align_hash = self.enumerate_aligns(self.video_list)
         else:
             print("\nEnumerating dataset list from disk...")
@@ -103,6 +106,7 @@ class GRIDDataset(tf.keras.utils.Sequence):
                 self.video_list = self.enumerate_videos(os.path.join(self.video_path, '*', '*'))
             else:
                 self.video_list = self.enumerate_videos(os.path.join(self.video_path, '*', '*'))
+            self.video_list = [x.replace("\\", os.sep).replace("/", os.sep) for x in self.video_list]
             self.align_hash = self.enumerate_aligns(self.video_list)
             with open(self.cache_path, 'wb') as fp:
                 pickle.dump((self.video_list), fp)

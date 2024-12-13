@@ -1,6 +1,5 @@
 import os
 import tensorflow as tf
-import pathlib
 
 num_epochs = 10
 
@@ -10,9 +9,9 @@ max_num_weights = 5
 
 minibatch_size = 5
 
-data_path = pathlib.Path('../datasets')
+data_path = '../datasets'.replace("\\", os.sep).replace("/", os.sep)
 
-face_predictor_path = pathlib.Path('../common/predictors/shape_predictor_68_face_landmarks.dat')
+face_predictor_path = '../common/predictors/shape_predictor_68_face_landmarks.dat'.replace("\\", os.sep).replace("/", os.sep)
 
 absolute_max_string_len = 32
 
