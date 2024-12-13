@@ -35,7 +35,7 @@ class CERMetric(tf.keras.metrics.Metric):
     def result(self):
         return tf.math.divide_no_nan(self.cer_accumulator, self.counter)
 
-    def reset_states(self):
+    def reset_state(self):
         self.cer_accumulator.assign(0.0)
         self.counter.assign(0.0)
 
@@ -70,7 +70,7 @@ class WERMetric(tf.keras.metrics.Metric):
     def result(self):
         return tf.math.divide_no_nan(self.wer_accumulator, self.counter)
 
-    def reset_states(self):
+    def reset_state(self):
         self.wer_accumulator.assign(0.0)
         self.counter.assign(0.0)
 
