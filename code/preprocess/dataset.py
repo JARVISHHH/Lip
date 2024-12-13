@@ -11,7 +11,7 @@ from preprocess.align import Align
 
 class GRIDDataset(tf.keras.utils.Sequence):
 
-    def __init__(self, data_path, folder_name, load_cache, load_testcache):
+    def __init__(self, data_path, folder_name, load_cache, load_testcache, curriculum=None):
         self.video_input_shape = hp.input_shape
         
         self.data_path = data_path
@@ -27,7 +27,7 @@ class GRIDDataset(tf.keras.utils.Sequence):
 
         self.cur_train_index = multiprocessing.Value('i', 0)
         self.cur_val_index   = multiprocessing.Value('i', 0)
-        self.curriculum      = None  # TODO: change this after adding augmentation
+        self.curriculum      = curriculum  # TODO: change this after adding augmentation
         self.random_seed     = 13
         # Process epoch is used by non-training generator (e.g: validation)
         # because each epoch uses different validation data enqueuer

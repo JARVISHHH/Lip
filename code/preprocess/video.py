@@ -13,12 +13,16 @@ class VideoAugmenter(object):
         video_aligns = []
         for sub in align.align:
             # Create new video
+            # print(f"sub: {sub}, type(sub[0]): {type(sub[0])}, type(sub[1]): {type(sub[1])}")
+            start_idx = int(sub[0])
+            end_idx = int(sub[1])
+
             _video = Video(video.video_type)
-            _video.face = video.face[sub[0]:sub[1]]
-            _video.mouth = video.mouth[sub[0]:sub[1]]
+            _video.face = video.face[start_idx:end_idx]
+            _video.mouth = video.mouth[start_idx:end_idx]
             _video.set_data(_video.mouth)
             # Create new align
-            _align = Align(align.absolute_max_string_len, align.label_func).from_array([(0, sub[1]-sub[0], sub[2])])
+            _align = Align(align.label_func).from_array([(0, end_idx-start_idx, sub[2])])
             # Append
             video_aligns.append((_video, _align))
         return video_aligns
@@ -40,7 +44,7 @@ class VideoAugmenter(object):
                 align.append(_sub)
             inc = align[-1][1]
         video.set_data(video.mouth)
-        align = Align(asample.absolute_max_string_len, asample.label_func).from_array(align)
+        align = Align(asample.label_func).from_array(align)
         return (video, align)
 
     @staticmethod

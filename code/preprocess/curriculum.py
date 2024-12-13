@@ -1,32 +1,18 @@
 import numpy as np
-from video import VideoAugmenter
+from preprocess.video import VideoAugmenter
 import hyperparameters as hp
-
-#add to train.py later
-def curriculum_rules(epoch):
-    flip_prob = min(hp.base_flip_prob + epoch * 0.05, hp.upperbond_flip_prob) 
-    jitter_prob = min(hp.base_jitter_prob + epoch * 0.01, hp.upperbond_jitter_prob)
-    gaussian_prob = min(hp.base_gaussian_prob + epoch * 0.01, hp.upperbond_gaussian_prob)
-    decay_rate = hp.decay_rate ** epoch
-    
-    if epoch < 1:
-        return { 'sentence_length': 1, 'decay_rate': decay_rate}
-    elif 1 <= epoch < 2:
-        return { 'sentence_length': 2, 'decay_rate': decay_rate}
-    elif 2 <= epoch < 3:
-        return { 'sentence_length': 2, 'flip_probability': flip_prob, 'gaussian_probability': gaussian_prob, 'decay_rate': decay_rate }
-    elif 3 <= epoch < 4:
-        return { 'sentence_length': 3, 'flip_probability': flip_prob, 'jitter_probability': jitter_prob, 'gaussian_probability': gaussian_prob, 'decay_rate': decay_rate}
-    elif 4 <= epoch < 5:
-        return { 'sentence_length': -1, 'gaussian_probability': gaussian_prob, 'decay_rate': decay_rate }
-    elif 5 <= epoch < 6:
-        return { 'sentence_length': -1, 'flip_probability': flip_prob, 'gaussian_probability': gaussian_prob, 'decay_rate': decay_rate }
-    return { 'sentence_length': -1, 'flip_probability': flip_prob, 'jitter_probability': jitter_prob, 'gaussian_probability': gaussian_prob, 'decay_rate': decay_rate }
+import tensorflow as tf
 
 class Curriculum(object):
     def __init__(self, rules):
         self.rules = rules
+        self.train = False
         self.epoch = -1
+        self.sentence_length = -1
+        self.flip_probability = 0.0
+        self.jitter_probability = 0.0
+        self.gaussian_probability = 0.0
+        self.decay_rate = 1.0
 
     def update(self, epoch, train=True):
         self.epoch = epoch
@@ -35,8 +21,9 @@ class Curriculum(object):
         self.sentence_length = current_rule.get('sentence_length') or -1
         self.flip_probability = current_rule.get('flip_probability') or 0.0
         self.jitter_probability = current_rule.get('jitter_probability') or 0.0
-        self.noise_probability = current_rule.get('noise_probability') or 0.0
+        self.gaussian_probability = current_rule.get('gaussian_probability') or 0.0
         self.decay_rate = current_rule.get('decay_rate') or 1.0
+        
 
     def apply(self, video, align):
         original_video = video
@@ -47,7 +34,7 @@ class Curriculum(object):
             if np.random.ranf() < self.flip_probability:
                 video = VideoAugmenter.horizontal_flip(video)
             # added random gaussian_noise
-            if np.random.ranf() < self.noise_probability:
+            if np.random.ranf() < self.gaussian_probability:
                 video = VideoAugmenter.add_gaussian_noise(video, mean=0, std=0.01)
 
             video = VideoAugmenter.temporal_jitter(video, self.jitter_probability)
@@ -62,3 +49,13 @@ class Curriculum(object):
     def __str__(self):
         return "{}(train: {}, sentence_length: {}, flip_probability: {}, jitter_probability: {}, gaussian_probability: {}, decay_rate: {})"\
             .format(self.__class__.__name__, self.train, self.sentence_length, self.flip_probability, self.jitter_probability, self.gaussian_probability, self.decay_rate)
+            
+class CurriculumUpdateCallback(tf.keras.callbacks.Callback):
+    def __init__(self, curriculum):
+        super(CurriculumUpdateCallback, self).__init__()
+        self.curriculum = curriculum
+        
+    def on_epoch_begin(self, epoch, logs=None):
+        if self.curriculum:
+            self.curriculum.update(epoch, train=True)  
+            print(f"Curriculum updated for epoch {epoch} : {self.curriculum}")
