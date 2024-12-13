@@ -94,7 +94,9 @@ python extract_mouth_batch.py ../datasets/videos/s3 *.mpg ../datasets/mouth/trai
 
 ### Model set up (for Jue)
 
-Modify `architecture` in `model.py`. The current `architecture` is the same with the model architecture in LipNet's GitHub https://github.com/rizkiarm/LipNet/blob/master/lipnet/model.py
+Modify `architecture`, `metrics` in `model.py`, and customize the `callback` in `main.py`. The current `architecture` is the same with the model architecture in LipNet's GitHub https://github.com/rizkiarm/LipNet/blob/master/lipnet/model.py
+
+We have several versions of the structures to be trained. See commands for comparasions.
 
 Run
 
