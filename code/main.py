@@ -62,12 +62,13 @@ def train(model, train_datasets, val_datasets,checkpoint_path, logs_path, init_e
 
     # Keras callbacks for training
     callback_list = [
-        # tf.keras.callbacks.TensorBoard(
-        #     log_dir=logs_path,
-        #     update_freq='batch',
-        #     profile_batch=0),
-        # # ImageLabelingLogger(logs_path, datasets),
-        # CustomModelSaver(checkpoint_path, hp.max_num_weights),
+        tf.keras.callbacks.TensorBoard(
+            log_dir=logs_path,
+            update_freq='batch',  # Save histograms of weights for each epoch
+            write_graph=True,  # Save the computation graph
+            write_images=True  # Save images of weights
+        ),
+        CustomModelSaver(checkpoint_path, hp.max_num_weights)
     ]
     
     if train_datasets.curriculum :
@@ -182,6 +183,7 @@ def main():
             decoded      = tf.keras.backend.ctc_decode(y_pred, input_length, greedy=False)[0][0].numpy()
 
             text = "".join([bytes.decode(x) for x in hp.num_to_char(decoded[0]).numpy()])
+            # text = tf.strings.reduce_join([bytes.decode(x) for x in hp.num_to_char(decoded[0]).numpy()])
             print(text)
 
             # show_video_subtitle(video.face, decoded)
