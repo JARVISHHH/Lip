@@ -61,6 +61,16 @@ Run the following command **under `code` folder**. It will download all data and
 python dataset_download.py
 ```
 
+The script will download files into `Lip/downloads` and extract files into `Lip/datasets`.
+
+You can use `--skip-download` and `--skip-extract` to skip downloading and extracting respectively.
+
+For example, the following command will skip downloading, and jump right to extracting. 
+
+```
+python dataset_download.py --skip-download
+```
+
 
 
 ## How to modify and run
