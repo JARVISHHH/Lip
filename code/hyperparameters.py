@@ -16,6 +16,20 @@ face_predictor_path = pathlib.Path('../common/predictors/shape_predictor_68_face
 
 absolute_max_string_len = 32
 
+data_path = os.path.normpath('../datasets')
+
+face_predictor_path = os.path.normpath('../common/predictors/shape_predictor_68_face_landmarks.dat')
+
+absolute_max_string_len = 32
+
+decay_rate = 0.925
+base_flip_prob = 0.2
+upperbond_flip_prob = 0.5
+base_jitter_prob = 0.01
+upperbond_jitter_prob = 0.05
+base_gaussian_prob = 0.05
+upperbond_gaussian_prob = 0.1
+
 
 ##### DO NOT CHNGE #####
 

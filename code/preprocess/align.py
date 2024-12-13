@@ -31,6 +31,7 @@ class Align(object):
     #     padding = np.zeros((hp.absolute_max_string_len - len(label)))
     #     return np.concatenate((np.array(label), padding), axis=0)
     
+    
     def build(self, align):
         self.align = self.strip(align, ['sp', 'sil'])
         self.sentence = self.get_sentence(align)
@@ -54,7 +55,41 @@ class Align(object):
     def from_array(self, align):
         self.build(align)
         return self
+    '''
+    def parse_alignment(self, align):
+        """
+        Convert start and end times in the alignment to integers.
+        Args:
+            align (list): List of alignment tuples (start, end, token).
 
+        Returns:
+            list: Updated alignment with start and end as integers.
+        """
+        return [(int(sub[0]), int(sub[1]), sub[2]) for sub in align]
+
+    def process_labels(self, align):
+        """
+        Process alignments to produce labels and padded labels.
+
+        Args:
+            align (list): List of alignment tuples.
+
+        Returns:
+            tuple: (labels, padded_labels).
+        """
+        stripped_align = self.strip(align, ['sp', 'sil'])
+        sentence = self.get_sentence(stripped_align)
+        
+        # Debug: Check for unknown tokens
+        try:
+            labels = self.get_label(sentence)
+        except tf.errors.InvalidArgumentError as e:
+            print(f"Error: Token not in vocabulary. Sentence: {sentence}")
+            raise e
+        padding = np.ones((hp.absolute_max_string_len - len(labels))) * -1
+        padded_labels = np.concatenate((np.array(labels), padding), axis=0)
+        return labels, padded_labels
+    '''
     @property
     def word_length(self):
         """

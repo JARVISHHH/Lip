@@ -39,16 +39,25 @@ def find_files(directory, pattern):
                 filename = os.path.join(root, basename)
                 yield filename
 
-for filepath in find_files(SOURCE_PATH, SOURCE_EXTS):
-    print("Processing: {}".format(filepath))
-    video = Video('face').from_video(filepath)
+def count_files_in_directory(directory):
+    return len([name for name in os.listdir(directory) if os.path.isfile(os.path.join(directory, name))])
 
+for filepath in find_files(SOURCE_PATH, SOURCE_EXTS):
+    filepath_wo_ext = os.path.basename(os.path.splitext(filepath)[0])
+    target_dir = os.path.join(TARGET_PATH, filepath_wo_ext)
+    if os.path.exists(target_dir) and count_files_in_directory(target_dir) >= 73:
+        print(f"Skipping {target_dir} as it already contains 75 files.")
+        continue
+    
+    print("Processing: {}".format(filepath))
+    try:
+        video = Video('face').from_video(filepath)
+    except RuntimeError as e:
+        print(f"Error processing {filepath}: {e}")
+        continue
     if video.mouth.ndim != 4:
         continue
     
-    filepath_wo_ext = os.path.basename(os.path.splitext(filepath)[0])
-    target_dir = os.path.join(TARGET_PATH, filepath_wo_ext)
-
     mkdir_p(target_dir)
 
     i = 0

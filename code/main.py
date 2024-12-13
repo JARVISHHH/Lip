@@ -8,6 +8,7 @@ import numpy as np
 import glob
 
 import hyperparameters as hp 
+from preprocess.curriculum import Curriculum, CurriculumUpdateCallback
 from preprocess.dataset import GRIDDataset
 from preprocess.video import Video
 from preprocess.visualization import show_video_subtitle
@@ -68,6 +69,10 @@ def train(model, train_datasets, val_datasets,checkpoint_path, logs_path, init_e
         # # ImageLabelingLogger(logs_path, datasets),
         # CustomModelSaver(checkpoint_path, hp.max_num_weights),
     ]
+    
+    if train_datasets.curriculum :
+        curriculum_callback = CurriculumUpdateCallback(train_datasets.curriculum)
+        callback_list.append(curriculum_callback)
 
     # Begin training
     model.fit(
@@ -89,10 +94,34 @@ def test(model, test_data):
     )
 
 def main():
+    
+    #Defined dynamically curriculum rules for data augmention
+    def curriculum_rules(epoch):
+        flip_prob = min(hp.base_flip_prob + epoch * 0.05, hp.upperbond_flip_prob) 
+        jitter_prob = min(hp.base_jitter_prob + epoch * 0.01, hp.upperbond_jitter_prob)
+        gaussian_prob = min(hp.base_gaussian_prob + epoch * 0.01, hp.upperbond_gaussian_prob)
+        decay_rate = hp.decay_rate ** epoch
+        
+        if epoch < 1:
+            return { 'sentence_length': 1, 'decay_rate': decay_rate}
+        elif 1 <= epoch < 2:
+            return { 'sentence_length': 2, 'decay_rate': decay_rate}
+        elif 2 <= epoch < 3:
+            return { 'sentence_length': 2, 'flip_probability': flip_prob, 'gaussian_probability': gaussian_prob, 'decay_rate': decay_rate }
+        elif 3 <= epoch < 4:
+            return { 'sentence_length': 3, 'flip_probability': flip_prob, 'jitter_probability': jitter_prob, 'gaussian_probability': gaussian_prob, 'decay_rate': decay_rate}
+        elif 4 <= epoch < 5:
+            return { 'sentence_length': -1, 'gaussian_probability': gaussian_prob, 'decay_rate': decay_rate }
+        elif 5 <= epoch < 6:
+            return { 'sentence_length': -1, 'flip_probability': flip_prob, 'gaussian_probability': gaussian_prob, 'decay_rate': decay_rate }
+        return { 'sentence_length': -1, 'flip_probability': flip_prob, 'jitter_probability': jitter_prob, 'gaussian_probability': gaussian_prob, 'decay_rate': decay_rate }
+
     """ Main function. """
     time_now = datetime.now()
     timestamp = time_now.strftime("%m%d%y-%H%M%S")
     init_epoch = 0
+    #Initialize the curriculum for augmenation
+    curriculum = Curriculum(curriculum_rules)
 
     # If loading from a checkpoint, the loaded checkpoint's directory
     # will be used for future checkpoints
@@ -125,7 +154,7 @@ def main():
 
     # Train
     if ARGS.train:
-        train_datasets = GRIDDataset(hp.data_path, 'train', ARGS.load_cache, ARGS.load_testcache).build()
+        train_datasets = GRIDDataset(hp.data_path, 'train', ARGS.load_cache, ARGS.load_testcache, curriculum=curriculum).build()
         val_datasets = GRIDDataset(hp.data_path, 'val', ARGS.load_cache, ARGS.load_testcache).build()
         
         train(model, train_datasets, val_datasets, checkpoint_path, logs_path, init_epoch)

@@ -4,9 +4,130 @@ import tensorflow as tf
 import numpy as np
 import cv2
 import dlib
-
 import hyperparameters as hp
+from .align import Align
 
+class VideoAugmenter(object):
+    @staticmethod
+    def split_words(video, align):
+        video_aligns = []
+        for sub in align.align:
+            # Create new video
+            # print(f"sub: {sub}, type(sub[0]): {type(sub[0])}, type(sub[1]): {type(sub[1])}")
+            start_idx = int(sub[0])
+            end_idx = int(sub[1])
+
+            _video = Video(video.video_type)
+            _video.face = video.face[start_idx:end_idx]
+            _video.mouth = video.mouth[start_idx:end_idx]
+            _video.set_data(_video.mouth)
+            # Create new align
+            _align = Align(align.label_func).from_array([(0, end_idx-start_idx, sub[2])])
+            # Append
+            video_aligns.append((_video, _align))
+        return video_aligns
+
+    @staticmethod
+    def merge(video_aligns):
+        vsample = video_aligns[0][0]
+        asample = video_aligns[0][1]
+        video = Video(vsample.video_type)
+        video.face = np.ones((0, vsample.face.shape[1], vsample.face.shape[2], vsample.face.shape[3]), dtype=np.uint8)
+        video.mouth = np.ones((0, vsample.mouth.shape[1], vsample.mouth.shape[2], vsample.mouth.shape[3]), dtype=np.uint8)
+        align = []
+        inc = 0
+        for _video, _align in video_aligns:
+            video.face = np.concatenate((video.face, _video.face), 0)
+            video.mouth = np.concatenate((video.mouth, _video.mouth), 0)
+            for sub in _align.align:
+                _sub = (sub[0]+inc, sub[1]+inc, sub[2])
+                align.append(_sub)
+            inc = align[-1][1]
+        video.set_data(video.mouth)
+        align = Align(asample.label_func).from_array(align)
+        return (video, align)
+
+    @staticmethod
+    def pick_subsentence(video, align, length):
+        split = VideoAugmenter.split_words(video, align)
+        start = np.random.randint(0, align.word_length - length)
+        return VideoAugmenter.merge(split[start:start+length])
+
+    @staticmethod
+    def pick_word(video, align):
+        video_aligns = np.array(VideoAugmenter.split_words(video, align))
+        return video_aligns[np.random.randint(video_aligns.shape[0], size=2), :][0]
+
+    @staticmethod
+    def horizontal_flip(video):
+        _video = Video(video.video_type)
+        _video.face = np.flip(video.face, 2)
+        _video.mouth = np.flip(video.mouth, 2)
+        _video.set_data(_video.mouth)
+        return _video
+
+    @staticmethod
+    def temporal_jitter(video, probability):
+        changes = [] # [(frame_i, type=del/dup)]
+        t = video.length
+        for i in range(t):
+            if np.random.ranf() <= probability/2:
+                changes.append((i, 'del'))
+            if probability/2 < np.random.ranf() <= probability:
+                changes.append((i, 'dup'))
+        _face = np.copy(video.face)
+        _mouth = np.copy(video.mouth)
+        j = 0
+        for change in changes:
+            _change = change[0] + j
+            if change[1] == 'dup':
+                _face = np.insert(_face, _change, _face[_change], 0)
+                _mouth = np.insert(_mouth, _change, _mouth[_change], 0)
+                j = j + 1
+            else:
+                _face = np.delete(_face, _change, 0)
+                _mouth = np.delete(_mouth, _change, 0)
+                j = j - 1
+        _video = Video(video.video_type)
+        _video.face = _face
+        _video.mouth = _mouth
+        _video.set_data(_video.mouth)
+        return _video
+
+    @staticmethod
+    def pad(video, length):
+        pad_length = max(length - video.length, 0)
+        video_length = min(length, video.length)
+        face_padding = np.ones((pad_length, video.face.shape[1], video.face.shape[2], video.face.shape[3]), dtype=np.uint8) * 0
+        mouth_padding = np.ones((pad_length, video.mouth.shape[1], video.mouth.shape[2], video.mouth.shape[3]), dtype=np.uint8) * 0
+        _video = Video(video.video_type)
+        _video.face = np.concatenate((video.face[0:video_length], face_padding), 0)
+        _video.mouth = np.concatenate((video.mouth[0:video_length], mouth_padding), 0)
+        _video.set_data(_video.mouth)
+        return _video   
+
+    @staticmethod
+    def standardize(video):
+        _video = Video(video.video_type)
+        _video.face = (video.face - np.mean(video.face, axis=(1, 2, 3), keepdims=True) / 
+            (np.std(video.face, axis=(1, 2, 3), keepdims=True) + 1e-8))
+        _video.mouth = (video.mouth - np.mean(video.mouth, axis=(1, 2, 3), keepdims=True) / 
+            (np.std(video.mouth, axis=(1, 2, 3), keepdims=True) + 1e-8))
+        _video.set_data(_video.mouth)
+        return _video
+
+    @staticmethod
+    def add_gaussian_noise(video, mean=0, std=0.01):
+        _video = Video(video.video_type)
+        noise_face = np.random.normal(mean, std, video.face.shape)
+        noise_mouth = np.random.normal(mean, std, video.mouth.shape)
+
+        _video.face = np.clip(video.face + noise_face, 0, 255).astype(np.uint8)
+        _video.mouth = np.clip(video.mouth + noise_mouth, 0, 255).astype(np.uint8)
+        _video.set_data(_video.mouth)
+        return _video
+
+        
 class Video(object):
     def __init__(self, video_type = 'face'):
         self.video_type = video_type
@@ -37,6 +158,8 @@ class Video(object):
             _, frame = cap.read()
             frames.append(frame)
         cap.release()
+        if len(frames) == 0:
+            raise RuntimeError(f"Failed to extract frames from video: {path}")
         return frames
     
     def process_frames_face(self, frames):
