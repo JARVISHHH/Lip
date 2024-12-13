@@ -92,7 +92,6 @@ class GRIDDataset(tf.keras.utils.Sequence):
             with open (self.testcache_path, 'rb') as fp:
                 self.video_list = pickle.load(fp)
                 self.video_list = [x.replace("\\", os.sep).replace("/", os.sep) for x in self.video_list]
-                print(self.video_path)
                 self.align_hash = self.enumerate_aligns(self.video_list)
         elif self.load_cache and (os.path.isfile(self.cache_path)):
             print("\nLoading dataset list from cache...")
