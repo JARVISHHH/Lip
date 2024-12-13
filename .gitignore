@@ -3,8 +3,6 @@ datasets/downloads/*
 datasets/mouth/*
 datasets/videos/*
 datasets/tests/*
-code/logs/*
-code/checkpoints/*
 __pycache__/*
 *.pyc
 .DS_Store

@@ -53,7 +53,13 @@ lip/
 
 https://drive.google.com/drive/folders/1nZ1Vg_fBOYAiu_cxt762WLC-A1YKBz5a?usp=drive_link
 
-Download the datasets from the URL above to the right path according to the project structure. (videos are not uploaded since we will not be using it while training)
+~~Download the datasets from the URL above to the right path according to the project structure. (videos are not uploaded since we will not be using it while training)~~
+
+Run the following command **under `code` folder**. It will download all data and extract them automatically.
+
+```bash
+python dataset_download.py
+```
 
 
 
