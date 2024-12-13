@@ -152,7 +152,7 @@ def main():
             y_pred       = model.predict(X_data)
             decoded      = tf.keras.backend.ctc_decode(y_pred, input_length, greedy=False)[0][0].numpy()
 
-            text = tf.strings.reduce_join([bytes.decode(x) for x in hp.num_to_char(decoded[0]).numpy()])
+            text = "".join([bytes.decode(x) for x in hp.num_to_char(decoded[0]).numpy()])
             print(text)
 
             # show_video_subtitle(video.face, decoded)
